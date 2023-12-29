@@ -65,6 +65,7 @@
            opts
            {:name (str (name workload-name)
                        (when (:lazyfs opts) " lazyfs")
+                       " " (name (:txn-mode opts))
                        " " (str/join "," (map name (:nemesis opts))))
             :os os
             :db db
