@@ -66,6 +66,7 @@
            {:name (str (name workload-name)
                        (when (:lazyfs opts) " lazyfs")
                        " " (name (:txn-mode opts))
+                       " " (when (:optimistic-concurrency opts) " optimistic")
                        " " (str/join "," (map name (:nemesis opts))))
             :os os
             :db db
@@ -75,7 +76,7 @@
                         :clock (checker/clock-plot)
                         :stats (checker/stats)
                         :exceptions (checker/unhandled-exceptions)
-                        :timeline (timeline/html)
+                        ;:timeline (timeline/html)
                         :workload (:checker workload)})
             :client    (:client workload)
             :nemesis   (:nemesis nemesis nemesis/noop)
@@ -114,6 +115,9 @@
     :default 5
     :parse-fn read-string
     :validate [pos? "Must be a positive number."]]
+
+   ["-o" "--optimistic-concurrency" "If set, enables optimistic concurrency on sessions."
+    :default false]
 
    ["-r" "--rate HZ" "Approximate request rate, in hz"
     :default 100

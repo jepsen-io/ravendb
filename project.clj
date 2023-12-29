@@ -9,5 +9,5 @@
                  [net.ravendb/ravendb "5.4.0"]]
   :main jepsen.ravendb.cli
   :repl-options {:init-ns jepsen.ravendb.cli}
-    :jvm-opts ["-Djava.awt.headless=true"
+  :jvm-opts ["-Djava.awt.headless=true"
              "-server"])

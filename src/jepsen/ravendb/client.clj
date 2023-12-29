@@ -9,6 +9,7 @@
                                                  SessionOptions
                                                  TransactionMode)
            (net.ravendb.client.exceptions ClusterTransactionConcurrencyException
+                                          ConcurrencyException
                                           RavenException)
            (net.ravendb.client.serverwide DatabaseRecord)
            (net.ravendb.client.serverwide.operations CreateDatabaseOperation
@@ -58,8 +59,17 @@
   (let [opts (doto (SessionOptions.)
                (.setTransactionMode (case (:txn-mode test)
                                       :cluster-wide TransactionMode/CLUSTER_WIDE
-                                      :single-node TransactionMode/SINGLE_NODE)))]
-    (.openSession ds opts)))
+                                      :single-node TransactionMode/SINGLE_NODE)))
+        session (.openSession ds opts)]
+    ; Not exactly sure what this does! The comments
+    ; (https://github.com/ravendb/ravendb-jvm-client/blob/3594b8c813e3403c496805f7ec082d022d5e3cd1/src/main/java/net/ravendb/client/documents/session/IAdvancedDocumentSessionOperations.java#L101-L106)
+    ; say "When set to true, a check is made so that a change made behind
+    ; the session back would fail and raise ConcurrencyException", which...
+    ; sounds like it's actually critical for obtaining ACID? Why is this
+    ; buried in the advanced settings then?
+    (when (:optimistic-concurrency test)
+      (.. session advanced (setUseOptimisticConcurrency true)))
+    session))
 
 (defn store!
   "Stores an entity in a session."
@@ -95,8 +105,10 @@
   [op & body]
   `(try
     ~@body
-    (catch ClusterTransactionConcurrencyException e#
+    (catch ConcurrencyException e#
       (assoc ~op :type :fail, :error [:concurrency (.getMessage e#)]))
+    (catch ClusterTransactionConcurrencyException e#
+      (assoc ~op :type :fail, :error [:cluster-txn-concurrency (.getMessage e#)]))
     (catch RavenException e#
       (condp re-find (.getMessage e#)
         #"Cannot assign requested address" (assoc ~op :type :fail, :error [:cannot-assign-requested-address])
