@@ -90,7 +90,7 @@
   (log-files [this test node]
     (merge {daemon-log-file "daemon.log"}
            (try+ (->> (cu/ls (str dir "/Server/Logs"))
-                     (map (juxt (partial str data-dir "/Server/Logs/") identity))
+                     (map (juxt (partial str dir "/Server/Logs/") identity))
                      (into {}))
                  (catch [:type :jepsen.control/nonzero-exit] e nil))
            (when (:lazyfs test) (db/log-files lazyfs test node))))
