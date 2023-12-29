@@ -1,14 +1,24 @@
 # jepsen.ravendb
 
-A Clojure library designed to ... well, that part is up to you.
+A simple test for single-node deployments of RavenDB.
 
-## Usage
+## Quickstart
 
-FIXME
+To reproduce lost update by defaul, try:
+
+```
+lein run test --nodes n1 --concurrency 2n --rate 10000 --time-limit 5
+```
+
+To reproduce G-single with cluster-wide transactions, try:
+
+```
+lein run test --nodes n1 --concurrency 5n --rate 10000 --time-limit 10 --txn-mode cluster-wide
+```
 
 ## License
 
-Copyright © 2023 FIXME
+Copyright © 2023 Jepsen, LLC
 
 This program and the accompanying materials are made available under the
 terms of the Eclipse Public License 2.0 which is available at
