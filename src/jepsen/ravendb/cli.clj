@@ -152,7 +152,6 @@
   "Handles command line arguments. Can either run a test, or a web server for
   browsing results."
   [& args]
-  ; Suppress Raven logging every. single. read.
   (cli/run! (merge (cli/single-test-cmd {:test-fn  ravendb-test
                                          :opt-spec cli-opts})
                    (cli/test-all-cmd {:tests-fn all-tests
